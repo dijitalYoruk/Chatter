@@ -1,0 +1,1 @@
+Chatter is a mobile application where users have the opportunity to chat with each other and also, create groups. In this mobile application Firebase Realdatabase, Storage and Cloud Messaging is used.
