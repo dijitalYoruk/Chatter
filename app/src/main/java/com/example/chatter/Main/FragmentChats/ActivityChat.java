@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +48,7 @@ public class ActivityChat extends AppCompatActivity {
     private RecyclerView recMessages;
     private ImageView imgProfile;
     private ImageView imgGetBack;
+    private ProgressBar progressBar;
     private Toolbar toolbarChat;
     private AdapterRecChat adapter;
     private ChildEventListener listener;
@@ -77,6 +79,7 @@ public class ActivityChat extends AppCompatActivity {
         imgProfile = findViewById(R.id.imgProfile);
         imgGetBack = findViewById(R.id.imgGetBack);
         toolbarChat = findViewById(R.id.toolbar_chat);
+        progressBar = findViewById(R.id.progressBar4);
         chatRootLayout = findViewById(R.id.chatRootLayout);
         chatContainerLayout = findViewById(R.id.chatContainerLayout);
 
@@ -152,7 +155,10 @@ public class ActivityChat extends AppCompatActivity {
 
     private void loadToolbar() {
         tvUsername.setText( contactUser.username );
-        tvStatus.setText( contactUser.status );
+
+        if (!contactUser.status.equals(""))
+            tvStatus.setText( contactUser.status );
+
         if (!contactUser.image_URL.equals(""))
             Picasso.get().load( contactUser.image_URL ).into( imgProfile );
 
@@ -337,4 +343,7 @@ public class ActivityChat extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
+    public void getBack(View view) {
+        onBackPressed();
+    }
 }

@@ -19,6 +19,7 @@ import com.example.chatter.Authentication.ActivityPhoneAuth;
 import com.example.chatter.Main.FragmentAllUsers.FragmentAllUsers;
 import com.example.chatter.Main.FragmentAllUsers.FragmentProfile;
 import com.example.chatter.Main.FragmentChats.ActivityChat;
+import com.example.chatter.Main.FragmentGroups.ActivityGroupChat;
 import com.example.chatter.Main.FragmentGroups.FragmentCreateGroup;
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
@@ -37,12 +38,15 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
     // static values
     public static boolean isChatTabOpen = false;
+    public static boolean isGroupsTabOpen = false;
 
     // properties
     private View mainContainerLayout;
     private View mainRootLayout;
     private FirebaseAuth.AuthStateListener mAuth;
     private FragmentSettings fragmentSettings;
+    private FragmentCreateGroup fragmentCreateGroup;
+    private TabLayout tabLayout;
     private String currentUserId =
             FirebaseAuth.getInstance().getUid();
 
@@ -51,11 +55,11 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setupTabLayout();
         checkNotification();
         setupViews();
         setupAuthStateListener();
         setupToolbar();
-        setupTabLayout();
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
     }
@@ -65,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         mainContainerLayout = findViewById(R.id.mainContainerLayout);
         mainRootLayout = findViewById(R.id.mainRootLayout);
         fragmentSettings = new FragmentSettings();
+        fragmentCreateGroup = new FragmentCreateGroup();
     }
 
 
@@ -103,6 +108,20 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                 intent.putExtra("contactId", contactId);
                 startActivity(intent);
             }
+
+            // New Group notification
+            else if (notificationType.equals("new_group")) {
+                tabLayout.getTabAt(1).select();
+            }
+
+            // New Group Message Notification
+            else if (notificationType.equals("new_group_message")) {
+                Intent intent = new Intent(getApplicationContext(), ActivityGroupChat.class);
+                String groupId = getIntent().getStringExtra("groupId");
+                intent.putExtra("groupId", groupId);
+                startActivity(intent);
+            }
+
         }
     }
 
@@ -110,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     private void setupTabLayout() {
 
         // setting up tab layout.
-        TabLayout tabLayout = findViewById( R.id.tabBar );
+        tabLayout = findViewById( R.id.tabBar );
         TabBarAdapter tabBarAdapter = new TabBarAdapter( getSupportFragmentManager() );
 
         // setting up corresponding view pager.
@@ -125,13 +144,8 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                if (tab.getPosition() == 0){
-                    isChatTabOpen = true;
-                    Toast.makeText(getApplicationContext(), isChatTabOpen +"" , Toast.LENGTH_SHORT).show();
-                }else {
-                    isChatTabOpen = false;
-                    Toast.makeText(getApplicationContext(), isChatTabOpen +"" , Toast.LENGTH_SHORT).show();
-                }
+                isChatTabOpen = tab.getPosition() == 0;
+                isGroupsTabOpen = tab.getPosition() == 1;
             }
 
             @Override
@@ -195,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
         // replacing fragment.
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.mainContainerLayout, new FragmentCreateGroup());
+        transaction.replace(R.id.mainContainerLayout, fragmentCreateGroup);
         transaction.addToBackStack("ADD FRAG GROUPS");
         transaction.commit();
     }
@@ -256,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         super.onStop();
         FirebaseAuth.getInstance().removeAuthStateListener(mAuth);
         isChatTabOpen = false;
+        isGroupsTabOpen = false;
     }
 
 
@@ -312,7 +327,6 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     }
 
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -322,10 +336,15 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
             switch (requestCode){
 
                 case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE: {
+                    fragmentCreateGroup.setGroupProfile(data);
                     fragmentSettings.updateProfileImage(data);
                 } break;
 
             }
         }
+    }
+
+    public void refreshCreateGroupFragment() {
+        fragmentCreateGroup = new FragmentCreateGroup();
     }
 }

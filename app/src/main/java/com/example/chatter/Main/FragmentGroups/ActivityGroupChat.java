@@ -10,6 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chatter.Modals.Group;
@@ -25,6 +27,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -34,11 +37,20 @@ import java.util.ArrayList;
 
 public class ActivityGroupChat extends AppCompatActivity {
 
+    // static properties
+    public static boolean isActivityGroupChatOpen = false;
+    public static String groupId = "";
+
     // properties
     private EditText etMessage;
     private RecyclerView rcvMessages;
     private View groupChatContainerLayout;
     private View groupChatRootLayout;
+    private TextView tvGroupName;
+    private ImageView imgGroupProfile;
+
+
+
     private Group currentGroup;
     private User currentUser;
     private ArrayList<Message> messages;
@@ -65,11 +77,13 @@ public class ActivityGroupChat extends AppCompatActivity {
         rcvMessages = findViewById(R.id.rcvMessages);
         groupChatRootLayout = findViewById(R.id.groupChatRootLayout);
         groupChatContainerLayout = findViewById(R.id.groupChatContainerLayout);
+        tvGroupName = findViewById(R.id.tvGroupName);
+        imgGroupProfile = findViewById(R.id.imgGroupProfile);
     }
 
 
     private void getGroupData() {
-        String groupId = getIntent().getStringExtra("groupId");
+        groupId = getIntent().getStringExtra("groupId");
         FirebaseDatabase.getInstance().getReference()
                 .child("Groups")
                 .child(groupId)
@@ -90,9 +104,9 @@ public class ActivityGroupChat extends AppCompatActivity {
 
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar_group_chat);
-        toolbar.setTitle(currentGroup.group_name);
-        setSupportActionBar(toolbar);
+        tvGroupName.setText( currentGroup.group_name );
+        if (!currentGroup.image_URL.equals(""))
+            Picasso.get().load( currentGroup.image_URL ).into(imgGroupProfile);
     }
 
 
@@ -167,6 +181,9 @@ public class ActivityGroupChat extends AppCompatActivity {
             adapter.notifyDataSetChanged();
 
         addChildEventListener();
+        isActivityGroupChatOpen = true;
+        groupId = getIntent().getStringExtra(
+                "groupId");
     }
 
 
@@ -174,6 +191,8 @@ public class ActivityGroupChat extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         removeChildEventListener();
+        isActivityGroupChatOpen = false;
+        groupId = "";
     }
 
 
@@ -288,4 +307,7 @@ public class ActivityGroupChat extends AppCompatActivity {
         return currentGroup;
     }
 
+    public void getBack(View view) {
+        onBackPressed();
+    }
 }

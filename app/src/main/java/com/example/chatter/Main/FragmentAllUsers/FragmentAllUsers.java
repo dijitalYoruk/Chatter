@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -36,6 +37,7 @@ public class FragmentAllUsers extends Fragment {
     }
 
     private void getContactsData() {
+        final String currentUserId = FirebaseAuth.getInstance().getUid();
 
         FirebaseDatabase.getInstance().getReference()
                 .child("Users")
@@ -46,6 +48,10 @@ public class FragmentAllUsers extends Fragment {
 
                         for (DataSnapshot data: dataSnapshot.getChildren()) {
                             User temp = data.getValue(User.class);
+
+                            if (temp.user_id.equals( currentUserId ))
+                                continue;
+
                             contacts.add(temp);
                         }
 

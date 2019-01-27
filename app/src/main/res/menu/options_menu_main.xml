@@ -3,11 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/options_item_find_friends"
-        android:title="Find Friens"
-        app:showAsAction="never" />
-
-    <item
         android:id="@+id/options_item_create_group"
         android:title="Create Group"
         app:showAsAction="never" />

@@ -59,13 +59,11 @@ public class AdapterRecChats extends RecyclerView.Adapter<AdapterRecChats.MyView
         // getting contact user.
         final User contact = chatUsers.get(i);
 
-
         // loading profile image of contact.
         if (!contact.image_URL.equals(""))
             Picasso.get().load( contact.image_URL )
                     .placeholder(R.drawable.icon_circle_2)
                     .into( myViewHolder.imgProfile );
-
 
         // setting username
         myViewHolder.tvUserName.setText( contact.username );

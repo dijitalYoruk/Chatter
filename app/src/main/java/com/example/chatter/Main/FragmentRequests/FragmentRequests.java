@@ -38,7 +38,6 @@ public class FragmentRequests extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mainView = inflater.inflate(R.layout.fragment_requests, container, false);
-        currentUserId = FirebaseAuth.getInstance().getUid();
         recRequests = mainView.findViewById(R.id.recRequests);
         setRecyclerView();
         return mainView;
@@ -122,6 +121,7 @@ public class FragmentRequests extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        currentUserId = FirebaseAuth.getInstance().getUid();
         requests = new ArrayList<>();
         setChildEventListener();
         addChildEventListener();

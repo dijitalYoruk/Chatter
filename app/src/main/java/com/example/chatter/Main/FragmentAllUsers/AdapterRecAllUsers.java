@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.example.chatter.Main.MainActivity;
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -41,7 +42,6 @@ public class AdapterRecAllUsers extends RecyclerView.Adapter<AdapterRecAllUsers.
 
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder myViewHolder, int i) {
-
         if (!contacts.get(i).image_URL.equals(""))
             Picasso.get().load( contacts.get(i).image_URL )
                     .placeholder(R.drawable.icon_circle_2).into( myViewHolder.imgProfile );

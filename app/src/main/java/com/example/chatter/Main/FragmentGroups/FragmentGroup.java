@@ -24,6 +24,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -45,8 +46,8 @@ public class FragmentGroup extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mainView = inflater.inflate(R.layout.fragment_group, container, false);
         currentGroup = ((ActivityGroupChat) getActivity()).getCurrentGroup();
-        adapterRecMembers = new AdapterRecMembers(getContext(), members, currentGroup.admin_id);
         members = new ArrayList<>();
+        adapterRecMembers = new AdapterRecMembers(getContext(), members, currentGroup.admin_id);
         setupViews();
         setRecyclerView();
         getGroupMembers();
@@ -62,6 +63,9 @@ public class FragmentGroup extends Fragment {
         btnCloseGroup = mainView.findViewById(R.id.btnCloseGroup);
         recGroupMembers = mainView.findViewById(R.id.recGroupMembers);
         tvGroupName.setText(currentGroup.group_name);
+
+        if (!currentGroup.image_URL.equals(""))
+            Picasso.get().load( currentGroup.image_URL ).into(imgGroupProfile);
     }
 
 
