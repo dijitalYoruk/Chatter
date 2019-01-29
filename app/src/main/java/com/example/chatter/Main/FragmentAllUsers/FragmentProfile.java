@@ -10,12 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
 import com.example.chatter.Utils.EventBusDataEvent;
+import com.example.chatter.Utils.UniversalImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -41,11 +43,13 @@ public class FragmentProfile extends Fragment {
     private Button btnRemoveChatRequest;
     private Button btnRemoveContact;
     private Button btnCancelChatRequest;
+    private ProgressBar progressBar;
     private User chosenUser;
 
     private ValueEventListener valueEventListener1;
     private ValueEventListener valueEventListener2;
     private ValueEventListener valueEventListener3;
+
 
     @Nullable
     @Override
@@ -66,6 +70,7 @@ public class FragmentProfile extends Fragment {
         tvUsername    = mainView.findViewById(R.id.tvUsername);
         tvStatus      = mainView.findViewById(R.id.tvStatus);
         tvPhoneNumber = mainView.findViewById(R.id.tvPhoneNumber);
+        progressBar   = mainView.findViewById(R.id.progressBar);
         btnRemoveContact = mainView.findViewById(R.id.btnRemoveContact);
         btnMakeChatRequest   = mainView.findViewById(R.id.btnMakeChatRequest);
         btnAcceptChatRequest = mainView.findViewById(R.id.btnAcceptChatRequest);
@@ -94,7 +99,7 @@ public class FragmentProfile extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
+                showToast(databaseError.getMessage());
             }
         };
 
@@ -115,7 +120,7 @@ public class FragmentProfile extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
+                showToast(databaseError.getMessage());
             }
         };
 
@@ -135,7 +140,7 @@ public class FragmentProfile extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
+                showToast(databaseError.getMessage());
             }
         };
     }
@@ -295,9 +300,8 @@ public class FragmentProfile extends Fragment {
     private void loadProfile() {
         tvUsername.setText(chosenUser.username);
         tvPhoneNumber.setText(chosenUser.phoneNumber);
-
-        if (!chosenUser.image_URL.equals(""))
-            Picasso.get().load(chosenUser.image_URL).into(imgProfile);
+        UniversalImageLoader.setImage(chosenUser.image_URL,
+                imgProfile, progressBar);
 
         if (!chosenUser.status.equals(""))
             tvStatus.setText(chosenUser.status);
@@ -377,4 +381,7 @@ public class FragmentProfile extends Fragment {
         FirebaseDatabase.getInstance().getReference().removeEventListener(valueEventListener3);
     }
 
+    private void showToast(String message) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+    }
 }

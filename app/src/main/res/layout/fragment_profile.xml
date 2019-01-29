@@ -150,13 +150,14 @@
         tools:text="Cancel" />
 
     <ProgressBar
-        android:id="@+id/progressBar9"
+        android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"
         android:layout_width="100dp"
         android:layout_height="100dp"
         app:layout_constraintBottom_toBottomOf="@+id/imgProfile"
         app:layout_constraintEnd_toEndOf="@+id/imgProfile"
         app:layout_constraintStart_toStartOf="@+id/imgProfile"
-        app:layout_constraintTop_toTopOf="@+id/imgProfile" />
+        app:layout_constraintTop_toTopOf="@+id/imgProfile"
+        tools:visibility="gone" />
 
 </android.support.constraint.ConstraintLayout>

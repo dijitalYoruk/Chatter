@@ -8,10 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.chatter.Modals.Group;
 import com.example.chatter.R;
+import com.example.chatter.Utils.UniversalImageLoader;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ public class AdapterRecGroups extends RecyclerView.Adapter<AdapterRecGroups.MyVi
     private ArrayList<Group> groups;
     private LayoutInflater inflater;
     private Context context;
+
 
     // constructor
     AdapterRecGroups(Context context, ArrayList<Group> groups) {
@@ -42,8 +45,11 @@ public class AdapterRecGroups extends RecyclerView.Adapter<AdapterRecGroups.MyVi
     public void onBindViewHolder(@NonNull final MyViewHolder myViewHolder, int i) {
         myViewHolder.tvGroupName.setText( groups.get(i).group_name );
 
-        if (!groups.get(i).image_URL.equals(""))
-            Picasso.get().load( groups.get(i).image_URL ).into( myViewHolder.imgGroup );
+        //if (!groups.get(i).image_URL.equals(""))
+          //  Picasso.get().load( groups.get(i).image_URL ).into( myViewHolder.imgGroup );
+
+        UniversalImageLoader.setImage(groups.get(i).image_URL,
+                myViewHolder.imgGroup, myViewHolder.progressBar);
 
         myViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,15 +76,17 @@ public class AdapterRecGroups extends RecyclerView.Adapter<AdapterRecGroups.MyVi
     class MyViewHolder extends RecyclerView.ViewHolder {
 
         // properties
-        TextView tvGroupName;
-        ImageView imgGroup;
-        View itemView;
+        private TextView tvGroupName;
+        private ImageView imgGroup;
+        private View itemView;
+        private ProgressBar progressBar;
 
         MyViewHolder(@NonNull View itemView) {
             super(itemView);
             tvGroupName = itemView.findViewById(R.id.tvGroupName);
             imgGroup = itemView.findViewById(R.id.imgGroup);
             this.itemView = itemView;
+            progressBar = itemView.findViewById(R.id.progressBar);
         }
     }
 }

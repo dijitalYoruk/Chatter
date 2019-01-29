@@ -10,11 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.chatter.Main.MainActivity;
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
+import com.example.chatter.Utils.UniversalImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
@@ -28,6 +30,7 @@ public class FragmentContact extends Fragment {
     private TextView tvStatus;
     private TextView tvPhoneNumber;
     private Button btnRemoveContact;
+    private ProgressBar progressBar;
     private User contactUser;
 
 
@@ -47,6 +50,7 @@ public class FragmentContact extends Fragment {
         tvUsername    = mainView.findViewById(R.id.tvUsername);
         tvStatus      = mainView.findViewById(R.id.tvStatus);
         tvPhoneNumber = mainView.findViewById(R.id.tvPhoneNumber);
+        progressBar   = mainView.findViewById(R.id.progressBar);
         btnRemoveContact = mainView.findViewById(R.id.btnRemoveContact);
     }
 
@@ -74,9 +78,8 @@ public class FragmentContact extends Fragment {
         contactUser = ((ActivityChat)getActivity()).getContactUser();
         tvUsername.setText(contactUser.username);
         tvPhoneNumber.setText(contactUser.phoneNumber);
-
-        if (!contactUser.image_URL.equals(""))
-            Picasso.get().load(contactUser.image_URL).into(imgProfile);
+        UniversalImageLoader.setImage(contactUser.image_URL,
+                imgProfile, progressBar);
 
         if (!contactUser.status.equals(""))
             tvStatus.setText(contactUser.status);
@@ -99,6 +102,7 @@ public class FragmentContact extends Fragment {
                 .removeValue();
     }
 
+
     private void removeContact() {
         final String currentUserId = FirebaseAuth.getInstance().getUid();
 
@@ -114,5 +118,4 @@ public class FragmentContact extends Fragment {
                 .child(currentUserId)
                 .removeValue();
     }
-
 }

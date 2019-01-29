@@ -1,5 +1,6 @@
 package com.example.chatter.Main.FragmentGroups;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
@@ -11,14 +12,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.chatter.Authentication.ActivityPhoneAuth;
 import com.example.chatter.Modals.Group;
 import com.example.chatter.Modals.Message;
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
 import com.example.chatter.Utils.EventBusDataEvent;
+import com.example.chatter.Utils.UniversalImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -48,14 +52,13 @@ public class ActivityGroupChat extends AppCompatActivity {
     private View groupChatRootLayout;
     private TextView tvGroupName;
     private ImageView imgGroupProfile;
-
-
-
+    private ProgressBar progressBar;
     private Group currentGroup;
     private User currentUser;
     private ArrayList<Message> messages;
     private AdapterRecGroupChatMes adapter;
     private ChildEventListener childEventListener;
+    private FirebaseAuth.AuthStateListener mAuth;
     private String currentUserId;
 
 
@@ -69,6 +72,7 @@ public class ActivityGroupChat extends AppCompatActivity {
         getGroupData();
         getCurrentUser();
         setChildEventListener();
+        setupAuthStateListener();
     }
 
 
@@ -79,6 +83,7 @@ public class ActivityGroupChat extends AppCompatActivity {
         groupChatContainerLayout = findViewById(R.id.groupChatContainerLayout);
         tvGroupName = findViewById(R.id.tvGroupName);
         imgGroupProfile = findViewById(R.id.imgGroupProfile);
+        progressBar = findViewById(R.id.progressBar);
     }
 
 
@@ -105,8 +110,8 @@ public class ActivityGroupChat extends AppCompatActivity {
 
     private void setupToolbar() {
         tvGroupName.setText( currentGroup.group_name );
-        if (!currentGroup.image_URL.equals(""))
-            Picasso.get().load( currentGroup.image_URL ).into(imgGroupProfile);
+        UniversalImageLoader.setImage(currentGroup.image_URL,
+                imgGroupProfile, progressBar);
     }
 
 
@@ -172,10 +177,27 @@ public class ActivityGroupChat extends AppCompatActivity {
     }
 
 
+    private void setupAuthStateListener() {
+
+        mAuth = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                    Intent intent = new Intent(getApplicationContext(), ActivityPhoneAuth.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    overridePendingTransition(0,0);
+                }
+            }
+        };
+    }
+
+
     @Override
     protected void onStart() {
         super.onStart();
         messages.clear();
+        FirebaseAuth.getInstance().addAuthStateListener(mAuth);
 
         if (adapter != null)
             adapter.notifyDataSetChanged();
@@ -191,6 +213,7 @@ public class ActivityGroupChat extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         removeChildEventListener();
+        FirebaseAuth.getInstance().removeAuthStateListener(mAuth);
         isActivityGroupChatOpen = false;
         groupId = "";
     }

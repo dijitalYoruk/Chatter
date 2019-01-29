@@ -69,7 +69,7 @@ public class AdapterRecChat extends RecyclerView.Adapter<AdapterRecChat.MyViewHo
     class MyViewHolder extends RecyclerView.ViewHolder {
 
         // properties
-        TextView tvMessage;
+        private TextView tvMessage;
 
         // constructor
         MyViewHolder(@NonNull View itemView) {

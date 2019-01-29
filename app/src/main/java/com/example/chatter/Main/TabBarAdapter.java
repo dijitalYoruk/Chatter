@@ -36,10 +36,12 @@ public class TabBarAdapter extends FragmentPagerAdapter {
             return new FragmentRequests();
     }
 
+
     @Override
     public int getCount() {
         return FRAGMENT_COUNT;
     }
+
 
     @Nullable
     @Override

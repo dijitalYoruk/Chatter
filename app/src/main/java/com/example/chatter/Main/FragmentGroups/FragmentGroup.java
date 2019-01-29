@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +20,7 @@ import com.example.chatter.Main.MainActivity;
 import com.example.chatter.Modals.Group;
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
+import com.example.chatter.Utils.UniversalImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -37,9 +39,11 @@ public class FragmentGroup extends Fragment {
     private Button btnLeaveGroup;
     private Button btnCloseGroup;
     private RecyclerView recGroupMembers;
+    private ProgressBar progressBar;
     private Group currentGroup;
     private AdapterRecMembers adapterRecMembers;
     private ArrayList<User> members;
+
 
     @Nullable
     @Override
@@ -63,9 +67,9 @@ public class FragmentGroup extends Fragment {
         btnCloseGroup = mainView.findViewById(R.id.btnCloseGroup);
         recGroupMembers = mainView.findViewById(R.id.recGroupMembers);
         tvGroupName.setText(currentGroup.group_name);
+        progressBar = mainView.findViewById(R.id.progressBar);
 
-        if (!currentGroup.image_URL.equals(""))
-            Picasso.get().load( currentGroup.image_URL ).into(imgGroupProfile);
+        UniversalImageLoader.setImage(currentGroup.image_URL, imgGroupProfile, progressBar);
     }
 
 
@@ -167,6 +171,7 @@ public class FragmentGroup extends Fragment {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+        getActivity().overridePendingTransition(0,0);
     }
 
 

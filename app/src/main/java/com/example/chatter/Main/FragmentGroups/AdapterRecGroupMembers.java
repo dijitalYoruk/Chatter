@@ -25,6 +25,7 @@ public class AdapterRecGroupMembers extends RecyclerView.Adapter<AdapterRecGroup
     private LayoutInflater inflater;
     private Context context;
 
+
     // constructor
     AdapterRecGroupMembers(Context context, ArrayList<User> contacts) {
         inflater = LayoutInflater.from(context);

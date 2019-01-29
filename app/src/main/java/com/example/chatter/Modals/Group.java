@@ -12,12 +12,14 @@ public class Group {
 
     }
 
+
     public Group(String group_id, String admin_id, String group_name, String image_URL) {
         this.group_id = group_id;
         this.admin_id = admin_id;
         this.group_name = group_name;
         this.image_URL = image_URL;
     }
+
 
     @Override
     public String toString() {

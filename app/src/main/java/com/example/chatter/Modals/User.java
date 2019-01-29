@@ -10,6 +10,7 @@ public class User {
     public boolean is_online;
     public String last_seen;
 
+
     public User(String user_id, String username, String phoneNumber, String image_URL, String status, boolean is_online, String last_seen) {
         this.user_id = user_id;
         this.username = username;
@@ -20,9 +21,11 @@ public class User {
         this.last_seen = last_seen;
     }
 
+
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
+
 
     @Override
     public String toString() {

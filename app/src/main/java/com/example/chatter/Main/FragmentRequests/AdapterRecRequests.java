@@ -8,10 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
+import com.example.chatter.Utils.UniversalImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
@@ -42,9 +44,8 @@ public class AdapterRecRequests extends RecyclerView.Adapter<AdapterRecRequests.
     @Override
     public void onBindViewHolder(@NonNull final AdapterRecRequests.MyViewHolder myViewHolder, int i) {
 
-        if (!requests.get(i).image_URL.equals(""))
-            Picasso.get().load( requests.get(i).image_URL )
-                    .placeholder(R.drawable.icon_circle_2).into( myViewHolder.imgProfile );
+        UniversalImageLoader.setImage(requests.get(i).image_URL,
+                myViewHolder.imgProfile, myViewHolder.progressBar);
 
         myViewHolder.tvUserName.setText( requests.get(i).username );
 
@@ -120,13 +121,13 @@ public class AdapterRecRequests extends RecyclerView.Adapter<AdapterRecRequests.
     class MyViewHolder extends RecyclerView.ViewHolder {
 
         // properties
-        View itemView;
-        ImageView imgProfile;
-        ImageView imgIsOnline;
-        TextView tvUserName;
-        TextView tvStatus;
-        Button btnAccept;
-        Button btnCancel;
+        private View itemView;
+        private ImageView imgProfile;
+        private TextView tvUserName;
+        private TextView tvStatus;
+        private Button btnAccept;
+        private Button btnCancel;
+        private ProgressBar progressBar;
 
         MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -136,6 +137,7 @@ public class AdapterRecRequests extends RecyclerView.Adapter<AdapterRecRequests.
             tvStatus = itemView.findViewById(R.id.tvStatus);
             btnAccept = itemView.findViewById(R.id.btnAccept);
             btnCancel = itemView.findViewById(R.id.btnCancel);
+            progressBar = itemView.findViewById(R.id.progressBar);
         }
     }
 }

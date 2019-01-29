@@ -1,7 +1,6 @@
 package com.example.chatter.Authentication;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -17,13 +16,12 @@ import android.widget.Toast;
 import com.example.chatter.Main.MainActivity;
 import com.example.chatter.R;
 import com.example.chatter.Utils.EventBusDataEvent;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.chatter.Utils.UniversalImageLoader;
 import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -42,10 +40,18 @@ public class ActivityPhoneAuth extends AppCompatActivity implements FragmentMana
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_auth);
+        initImageLoader();
         isUserAuthenticated();
         setupToolbar();
         setupViews();
-        getSupportFragmentManager().addOnBackStackChangedListener(this);
+        getSupportFragmentManager()
+                .addOnBackStackChangedListener(this);
+    }
+
+
+    private void initImageLoader() {
+        UniversalImageLoader universalImageLoader = new UniversalImageLoader(this);
+        ImageLoader.getInstance().init( universalImageLoader.getConfiguration() );
     }
 
 
@@ -62,6 +68,7 @@ public class ActivityPhoneAuth extends AppCompatActivity implements FragmentMana
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
+            overridePendingTransition(0,0);
         }
     }
 

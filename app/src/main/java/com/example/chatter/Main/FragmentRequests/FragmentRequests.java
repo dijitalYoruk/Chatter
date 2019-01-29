@@ -43,6 +43,7 @@ public class FragmentRequests extends Fragment {
         return mainView;
     }
 
+
     private void setRecyclerView() {
         // setting adapter.
         adapter = new AdapterRecRequests(getContext(), requests);
@@ -53,6 +54,7 @@ public class FragmentRequests extends Fragment {
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recRequests.setLayoutManager(linearLayoutManager);
     }
+
 
     private void setChildEventListener() {
         listener = new ChildEventListener() {
@@ -80,6 +82,7 @@ public class FragmentRequests extends Fragment {
 
     }
 
+
     private void removeRequest(String id) {
         for (int i = 0; i < requests.size(); i++) {
             if ( requests.get(i).user_id.equals( id ) ) {
@@ -90,6 +93,7 @@ public class FragmentRequests extends Fragment {
             }
         }
     }
+
 
     private void addRequest(String userId) {
 
@@ -118,6 +122,7 @@ public class FragmentRequests extends Fragment {
                 });
     }
 
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -127,11 +132,13 @@ public class FragmentRequests extends Fragment {
         addChildEventListener();
     }
 
+
     @Override
     public void onDetach() {
         super.onDetach();
         removeChildEventListener();
     }
+
 
     public void addChildEventListener () {
         FirebaseDatabase.getInstance()

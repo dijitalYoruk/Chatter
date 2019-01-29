@@ -23,8 +23,10 @@ import java.util.ArrayList;
 
 public class FragmentAllUsers extends Fragment {
 
+    // properties
     private RecyclerView rcvContacts;
     private ArrayList<User> contacts;
+
 
     @Nullable
     @Override
@@ -35,6 +37,7 @@ public class FragmentAllUsers extends Fragment {
         getContactsData();
         return mainView;
     }
+
 
     private void getContactsData() {
         final String currentUserId = FirebaseAuth.getInstance().getUid();
@@ -65,6 +68,7 @@ public class FragmentAllUsers extends Fragment {
                 });
     }
 
+
     private void setRecyclerView() {
         // setting adapter.
         AdapterRecAllUsers adapterRecGroups = new AdapterRecAllUsers(getContext(), contacts);
@@ -76,8 +80,8 @@ public class FragmentAllUsers extends Fragment {
         rcvContacts.setLayoutManager(linearLayoutManager);
     }
 
+
     private void showToast(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
     }
-
 }

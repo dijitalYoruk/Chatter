@@ -7,11 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.chatter.Main.MainActivity;
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
+import com.example.chatter.Utils.UniversalImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
@@ -42,9 +44,9 @@ public class AdapterRecAllUsers extends RecyclerView.Adapter<AdapterRecAllUsers.
 
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder myViewHolder, int i) {
-        if (!contacts.get(i).image_URL.equals(""))
-            Picasso.get().load( contacts.get(i).image_URL )
-                    .placeholder(R.drawable.icon_circle_2).into( myViewHolder.imgProfile );
+
+        UniversalImageLoader.setImage(contacts.get(i).image_URL,
+                myViewHolder.imgProfile, myViewHolder.progressBar);
 
         myViewHolder.tvUserName.setText( contacts.get(i).username );
 
@@ -70,11 +72,11 @@ public class AdapterRecAllUsers extends RecyclerView.Adapter<AdapterRecAllUsers.
     class MyViewHolder extends RecyclerView.ViewHolder {
 
         // properties
-        View itemView;
-        ImageView imgProfile;
-        ImageView imgIsOnline;
-        TextView tvUserName;
-        TextView tvStatus;
+        private View itemView;
+        private ImageView imgProfile;
+        private TextView tvUserName;
+        private TextView tvStatus;
+        private ProgressBar progressBar;
 
         MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -82,6 +84,7 @@ public class AdapterRecAllUsers extends RecyclerView.Adapter<AdapterRecAllUsers.
             imgProfile = itemView.findViewById(R.id.imgProfile);
             tvUserName = itemView.findViewById(R.id.tvUserName);
             tvStatus = itemView.findViewById(R.id.tvStatus);
+            progressBar = itemView.findViewById(R.id.progressBar);
         }
     }
 }

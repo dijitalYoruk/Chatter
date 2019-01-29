@@ -1,5 +1,6 @@
 package com.example.chatter.Main.FragmentChats;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
@@ -17,11 +18,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.chatter.Authentication.ActivityPhoneAuth;
 import com.example.chatter.Modals.LastMessage;
 import com.example.chatter.Modals.Message;
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
 import com.example.chatter.Utils.EventBusDataEvent;
+import com.example.chatter.Utils.UniversalImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -53,8 +56,10 @@ public class ActivityChat extends AppCompatActivity {
     private AdapterRecChat adapter;
     private ChildEventListener listener;
     private ArrayList<Message> messages;
+    private FirebaseAuth.AuthStateListener mAuth;
     private String currentUserId;
     private User contactUser;
+
 
     // static properties
     public static boolean isActivityChatOpen = false;
@@ -72,12 +77,12 @@ public class ActivityChat extends AppCompatActivity {
         getContactData();
 
         // getting corresponding views
-        tvUsername = findViewById(R.id.tvUsername);
-        tvStatus = findViewById(R.id.tvStatus);
-        etMessage = findViewById(R.id.etMessage);
+        tvUsername  = findViewById(R.id.tvUsername);
+        tvStatus    = findViewById(R.id.tvStatus);
+        etMessage   = findViewById(R.id.etMessage);
         recMessages = findViewById(R.id.recMessages);
-        imgProfile = findViewById(R.id.imgProfile);
-        imgGetBack = findViewById(R.id.imgGetBack);
+        imgProfile  = findViewById(R.id.imgProfile);
+        imgGetBack  = findViewById(R.id.imgGetBack);
         toolbarChat = findViewById(R.id.toolbar_chat);
         progressBar = findViewById(R.id.progressBar4);
         chatRootLayout = findViewById(R.id.chatRootLayout);
@@ -85,6 +90,7 @@ public class ActivityChat extends AppCompatActivity {
 
         setRecyclerView();
         setChildEventListener();
+        setupAuthStateListener();
     }
 
 
@@ -149,18 +155,32 @@ public class ActivityChat extends AppCompatActivity {
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
         };
+    }
 
+
+    private void setupAuthStateListener() {
+
+        mAuth = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                    Intent intent = new Intent(getApplicationContext(), ActivityPhoneAuth.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    overridePendingTransition(0,0);
+                }
+            }
+        };
     }
 
 
     private void loadToolbar() {
-        tvUsername.setText( contactUser.username );
 
         if (!contactUser.status.equals(""))
             tvStatus.setText( contactUser.status );
 
-        if (!contactUser.image_URL.equals(""))
-            Picasso.get().load( contactUser.image_URL ).into( imgProfile );
+        UniversalImageLoader.setImage(contactUser.image_URL, imgProfile, progressBar);
+        tvUsername.setText( contactUser.username );
 
         imgGetBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,6 +216,7 @@ public class ActivityChat extends AppCompatActivity {
         super.onStart();
         contactId = getIntent().getStringExtra("contactId");
         currentUserId = FirebaseAuth.getInstance().getUid();
+        FirebaseAuth.getInstance().addAuthStateListener(mAuth);
         isActivityChatOpen = true;
         messages.clear();
 
@@ -212,6 +233,7 @@ public class ActivityChat extends AppCompatActivity {
         super.onStop();
         isActivityChatOpen = false;
         contactId = "";
+        FirebaseAuth.getInstance().removeAuthStateListener(mAuth);
         removeChildEventListener();
         updateLastMessage();
     }

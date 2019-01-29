@@ -12,8 +12,11 @@ import android.widget.TextView;
 
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -26,6 +29,7 @@ public class AdapterRecMembers extends RecyclerView.Adapter<AdapterRecMembers.My
     private String adminId;
     private Context context;
 
+
     // constructor
     AdapterRecMembers(Context context, ArrayList<User> members, String adminId) {
         inflater = LayoutInflater.from(context);
@@ -34,18 +38,19 @@ public class AdapterRecMembers extends RecyclerView.Adapter<AdapterRecMembers.My
         this.adminId = adminId;
     }
 
+
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         return new MyViewHolder( inflater.inflate(R.layout.list_item_member, viewGroup, false) );
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, int i) {
 
         if (!members.get(i).image_URL.equals(""))
            Picasso.get().load(members.get(i).image_URL).into(myViewHolder.imgProfile);
-
 
 
         if (members.get(i).user_id.equals( adminId )) {
@@ -61,13 +66,14 @@ public class AdapterRecMembers extends RecyclerView.Adapter<AdapterRecMembers.My
 
             else myViewHolder.tvUsername.setText( members.get(i).username );
         }
-
     }
+
 
     @Override
     public int getItemCount() {
         return members.size();
     }
+
 
     public void closeGroup(String group_id) {
 
@@ -88,7 +94,13 @@ public class AdapterRecMembers extends RecyclerView.Adapter<AdapterRecMembers.My
                 .child("GroupChatMessages")
                 .child(group_id)
                 .removeValue();
+
+        FirebaseStorage.getInstance()
+                .getReference()
+                .child("Groups/" + group_id + "/group_image")
+                .delete();
     }
+
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         // properties

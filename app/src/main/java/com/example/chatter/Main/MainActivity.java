@@ -60,8 +60,8 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         setupViews();
         setupAuthStateListener();
         setupToolbar();
-        getSupportFragmentManager().addOnBackStackChangedListener(this);
-
+        getSupportFragmentManager()
+                .addOnBackStackChangedListener(this);
     }
 
 
@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                 String groupId = getIntent().getStringExtra("groupId");
                 intent.putExtra("groupId", groupId);
                 startActivity(intent);
+                overridePendingTransition(0,0);
             }
 
         }
@@ -173,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                     Intent intent = new Intent(getApplicationContext(), ActivityPhoneAuth.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
+                    overridePendingTransition(0,0);
                 }
             }
         };
@@ -339,12 +341,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                     fragmentCreateGroup.setGroupProfile(data);
                     fragmentSettings.updateProfileImage(data);
                 } break;
-
             }
         }
-    }
-
-    public void refreshCreateGroupFragment() {
-        fragmentCreateGroup = new FragmentCreateGroup();
     }
 }

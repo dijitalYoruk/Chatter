@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
+import com.example.chatter.Utils.UniversalImageLoader;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -41,6 +42,7 @@ public class FragmentSettings extends Fragment {
     private View mainView;
     private Button btnUpdate;
     private ProgressBar progressBar;
+    private ProgressBar progressBarProfile;
     private User currentUser;
     private Uri newProfileImageUri;
     private String currentUserId;
@@ -66,6 +68,7 @@ public class FragmentSettings extends Fragment {
         etStatus = mainView.findViewById(R.id.etStatus);
         btnUpdate = mainView.findViewById(R.id.btnUpdate);
         progressBar = mainView.findViewById(R.id.progressBar);
+        progressBarProfile = mainView.findViewById(R.id.progressBarProfile);
     }
 
 
@@ -82,8 +85,8 @@ public class FragmentSettings extends Fragment {
 
                         if (currentUser != null) {
 
-                            if (!currentUser.image_URL.equals(""))
-                                Picasso.get().load(currentUser.image_URL).into(imgProfile);
+                            UniversalImageLoader.setImage(currentUser.image_URL,
+                                    imgProfile, progressBarProfile);
 
                             if (!currentUser.status.equals(""))
                                 etStatus.setText(currentUser.status);
@@ -169,7 +172,11 @@ public class FragmentSettings extends Fragment {
         if (executeUpdate) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             newProfileImageUri = result.getUri();
-            Picasso.get().load(newProfileImageUri).into(imgProfile);
+
+            //Picasso.get().load(newProfileImageUri).into(imgProfile);
+            UniversalImageLoader.setImage(newProfileImageUri.toString(),
+                    imgProfile, progressBarProfile);
+
             uploadUserProfileImageToFirebaseStorage();
             executeUpdate = false;
         }
@@ -208,7 +215,8 @@ public class FragmentSettings extends Fragment {
                 }
             });
 
-        }}
+        }
+    }
 
 
     private void uploadUserProfileImageToFirebaseDatabase() {

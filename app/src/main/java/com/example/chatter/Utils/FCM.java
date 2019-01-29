@@ -26,50 +26,50 @@ public class FCM extends FirebaseMessagingService {
         super.onMessageReceived(remoteMessage);
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            System.out.println( "GET DATA: " + remoteMessage.getData() );
 
+            // getting notification data
             String requestType = remoteMessage.getData().get("type");
-            String contactId = remoteMessage.getData().get("contact");
-            String groupId = remoteMessage.getData().get("groupId");
-            String title = remoteMessage.getData().get("title");
-            String body = remoteMessage.getData().get("body");
+            String title       = remoteMessage.getData().get("title");
+            String body        = remoteMessage.getData().get("body");
+            String contactId   = remoteMessage.getData().get("contact");
+            String groupId     = remoteMessage.getData().get("groupId");
 
-            System.out.println(groupId);
-            System.out.println(ActivityGroupChat.groupId);
 
-            if (requestType.equals("Request")) {
-                showRequestNotification(title, body, contactId);
+            switch (requestType) {
+
+                case "Request": {
+                    showRequestNotification(title, body, contactId);
+                } break;
+
+                case "new_message": {
+                    if (!MainActivity.isChatTabOpen && !(ActivityChat.isActivityChatOpen && ActivityChat.contactId.equals(contactId)))
+                        showNewMessageNotification(title, body, contactId);
+                } break;
+
+                case "remove": {
+                    showContactRemovedNotification(title, body);
+                } break;
+
+                case "new_group": {
+                    showNewGroupNotification(title, body);
+                } break;
+
+                case "new_group_message": {
+                    if (!MainActivity.isGroupsTabOpen && !(ActivityGroupChat.isActivityGroupChatOpen && ActivityGroupChat.groupId.equals(groupId)))
+                        showNewGroupMessageNotification(title, body, groupId);
+                } break;
+
             }
-
-            else if (requestType.equals("new_message")) {
-
-                if (!MainActivity.isChatTabOpen && !(ActivityChat.isActivityChatOpen && ActivityChat.contactId.equals(contactId))) {
-                    showNewMessageNotification(title, body, contactId);
-                }
-
-            }
-
-            else if (requestType.equals("remove")) {
-                showContactRemovedNotification(title, body);
-            }
-            else if (requestType.equals("new_group")) {
-                showNewGroupNotification(title, body);
-            }
-
-            else if (requestType.equals("new_group_message")) {
-
-                if (!MainActivity.isGroupsTabOpen && !(ActivityGroupChat.isActivityGroupChatOpen && ActivityGroupChat.groupId.equals(groupId)))
-                    showNewGroupMessageNotification(title, body, groupId);
-            }
-
         }
     }
 
+
     private void showNewGroupMessageNotification(String title, String body, String groupId) {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("type", "new_group_message");
         intent.putExtra("groupId", groupId);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 50, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -87,10 +87,12 @@ public class FCM extends FirebaseMessagingService {
         notificationManager.notify(generateRandomKey(groupId), notificationBuilder);
     }
 
+
     private void showNewGroupNotification(String title, String body) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("type", "new_group");
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 40, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -108,9 +110,11 @@ public class FCM extends FirebaseMessagingService {
         notificationManager.notify((int)System.currentTimeMillis(), notificationBuilder);
     }
 
+
     private void showContactRemovedNotification(String title, String body) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 30, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -129,11 +133,11 @@ public class FCM extends FirebaseMessagingService {
     }
 
     private void showNewMessageNotification(String title, String body, String contactId) {
-
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("type", "new_message");
         intent.putExtra("contact", contactId);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 20, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -152,23 +156,13 @@ public class FCM extends FirebaseMessagingService {
         notificationManager.notify(generateRandomKey(contactId), notificationBuilder);
     }
 
-    private int generateRandomKey(String contactId) {
-        int randomKey = 0;
-
-        for (int i = 0; i < contactId.length(); i++) {
-            randomKey += (int)contactId.charAt(i);
-        }
-
-        return randomKey;
-    }
-
 
     private void showRequestNotification(String title, String body, String contact) {
-
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("type", "Request");
         intent.putExtra("contact", contact);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 10, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -186,11 +180,6 @@ public class FCM extends FirebaseMessagingService {
         notificationManager.notify((int)System.currentTimeMillis(), notificationBuilder);
     }
 
-    @Override
-    public void onNewToken(String s) {
-        super.onNewToken(s);
-        setDeviceToken(s);
-    }
 
     private void setDeviceToken(String token) {
         String userId = FirebaseAuth.getInstance().getUid();
@@ -201,4 +190,20 @@ public class FCM extends FirebaseMessagingService {
                 .setValue(token);
     }
 
+
+    private int generateRandomKey(String contactId) {
+        int randomKey = 0;
+
+        for (int i = 0; i < contactId.length(); i++)
+            randomKey += (int)contactId.charAt(i);
+
+        return randomKey;
+    }
+
+
+    @Override
+    public void onNewToken(String s) {
+        super.onNewToken(s);
+        setDeviceToken(s);
+    }
 }

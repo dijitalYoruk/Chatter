@@ -1,12 +1,12 @@
 package com.example.chatter.Main.FragmentGroups;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,13 +15,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.chatter.Main.FragmentChats.ActivityChat;
-import com.example.chatter.Main.MainActivity;
 import com.example.chatter.Modals.Group;
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
+import com.example.chatter.Utils.UniversalImageLoader;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -37,10 +37,8 @@ import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.net.URI;
 import java.util.ArrayList;
 
-import static com.example.chatter.Main.FragmentChats.ActivityChat.contactId;
 
 public class FragmentCreateGroup extends Fragment {
 
@@ -51,7 +49,9 @@ public class FragmentCreateGroup extends Fragment {
     private View mainView;
     private ImageView imgGroup;
     private RecyclerView rcvGroupMembers;
+    private ProgressBar progressBar;
     private AdapterRecGroupMembers adapter;
+    private ProgressDialog progressDialog;
     private ArrayList<User> contacts;
     private String userId;
     private boolean executeProfile;
@@ -90,7 +90,7 @@ public class FragmentCreateGroup extends Fragment {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                        showToast(databaseError.getMessage());
                     }
                 });
     }
@@ -135,8 +135,14 @@ public class FragmentCreateGroup extends Fragment {
         btnCreate   = mainView.findViewById(R.id.btnCreate);
         btnCancel   = mainView.findViewById(R.id.btnCancel);
         etGroupName = mainView.findViewById(R.id.etGroupName);
+        progressBar = mainView.findViewById(R.id.progressBar);
         rcvGroupMembers = mainView.findViewById(R.id.rcvGroupMembers);
         imgGroup = mainView.findViewById(R.id.imgGroup);
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle("Creating Group");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setMessage("Please wait while " +
+                "group is being created");
     }
 
 
@@ -150,6 +156,7 @@ public class FragmentCreateGroup extends Fragment {
                 if (!groupName.equals(""))
                     if (adapter.getGroupMembers().size() != 0) {
                         saveGroup(etGroupName.getText().toString());
+                        progressDialog.show();
                     }
 
 
@@ -177,25 +184,21 @@ public class FragmentCreateGroup extends Fragment {
     }
 
 
+    public void setGroupProfile(Intent data) {
+        if (executeProfile) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            groupImage = result.getUri();
+            UniversalImageLoader.setImage(groupImage.toString(), imgGroup, progressBar);
+            executeProfile = false;
+        }
+    }
+
+
     private void saveGroup(String groupName) {
-        String adminId = FirebaseAuth.getInstance().getUid();
         final String groupId = FirebaseDatabase.getInstance().getReference()
                 .child("Groups").push().getKey();
 
-        Group group = new Group(groupId, adminId, groupName, "");
-        saveGroupProfileToFirebaseStorage(groupId);
-
-        FirebaseDatabase.getInstance().getReference()
-                .child("Groups")
-                .child(groupId)
-                .setValue(group)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful())
-                            saveGroupMembers(groupId);
-                    }
-                });
+        saveGroupProfileToFirebaseStorage(groupId, groupName);
     }
 
 
@@ -223,16 +226,8 @@ public class FragmentCreateGroup extends Fragment {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
     }
 
-    public void setGroupProfile(Intent data) {
-        if (executeProfile) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            groupImage = result.getUri();
-            Picasso.get().load(groupImage).into(imgGroup);
-            executeProfile = false;
-        }
-    }
 
-    private void saveGroupProfileToFirebaseStorage(final String groupId) {
+    private void saveGroupProfileToFirebaseStorage(final String groupId, final String groupName) {
 
         if (groupImage != null) {
 
@@ -258,7 +253,7 @@ public class FragmentCreateGroup extends Fragment {
                 public void onComplete(@NonNull Task<Uri> task) {
                     if (task.isSuccessful()) {
                         String imageUrl = task.getResult().toString();
-                        uploadGroupImageToFirebaseDatabase(imageUrl, groupId);
+                        uploadGroupFirebaseDatabase(imageUrl, groupId, groupName);
                     } else // error
                         showToast(task.getException().getLocalizedMessage());
                 }
@@ -271,31 +266,37 @@ public class FragmentCreateGroup extends Fragment {
         }
     }
 
+
     private void refreshFragment() {
         etGroupName.setText("");
         groupImage = null;
         Picasso.get().load(R.mipmap.image_asset_group).into(imgGroup);
+        progressDialog.dismiss();
         getActivity().onBackPressed();
     }
 
-    private void uploadGroupImageToFirebaseDatabase(String imageUrl, String groupId) {
+
+    private void uploadGroupFirebaseDatabase(final String imageUrl, final String groupId, String groupName) {
+
+        String adminId = FirebaseAuth.getInstance().getUid();
+        Group group = new Group(groupId, adminId, groupName, imageUrl);
+
         FirebaseDatabase.getInstance().getReference()
                 .child("Groups")
                 .child(groupId)
-                .child("image_URL")
-                .setValue(imageUrl)
+                .setValue(group)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
-
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+
                         if (task.isSuccessful()) {
                             showToast("Group Created Succesfully");
+                            saveGroupMembers(groupId);
                             refreshFragment();
                         }
                         else // error
                             showToast(task.getException().getLocalizedMessage());
-                    }
+                        }
                 });
     }
-
 }

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +17,7 @@ import com.example.chatter.Modals.Message;
 import com.example.chatter.Modals.User;
 import com.example.chatter.R;
 import com.example.chatter.Utils.EventBusDataEvent;
+import com.example.chatter.Utils.UniversalImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -59,11 +61,8 @@ public class AdapterRecChats extends RecyclerView.Adapter<AdapterRecChats.MyView
         // getting contact user.
         final User contact = chatUsers.get(i);
 
-        // loading profile image of contact.
-        if (!contact.image_URL.equals(""))
-            Picasso.get().load( contact.image_URL )
-                    .placeholder(R.drawable.icon_circle_2)
-                    .into( myViewHolder.imgProfile );
+        UniversalImageLoader.setImage(contact.image_URL,
+                myViewHolder.imgProfile, myViewHolder.progressBar);
 
         // setting username
         myViewHolder.tvUserName.setText( contact.username );
@@ -197,12 +196,13 @@ public class AdapterRecChats extends RecyclerView.Adapter<AdapterRecChats.MyView
     class MyViewHolder extends RecyclerView.ViewHolder {
 
         // properties
-        View itemView;
-        ImageView imgProfile;
-        ImageView imgNewMessage;
-        TextView tvUserName;
-        TextView tvLastSeen;
-        TextView tvDate;
+        private View itemView;
+        private ImageView imgProfile;
+        private ImageView imgNewMessage;
+        private TextView tvUserName;
+        private TextView tvLastSeen;
+        private TextView tvDate;
+        private ProgressBar progressBar;
 
         // constructor
         MyViewHolder(@NonNull View itemView) {
@@ -213,6 +213,7 @@ public class AdapterRecChats extends RecyclerView.Adapter<AdapterRecChats.MyView
             tvUserName = itemView.findViewById(R.id.tvUserName);
             tvLastSeen = itemView.findViewById(R.id.tvLastSeen);
             tvDate = itemView.findViewById(R.id.tvDate);
+            progressBar = itemView.findViewById(R.id.progressBar);
         }
     }
 }
